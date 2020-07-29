@@ -1,0 +1,167 @@
+
+
+
+<title>主页</title>
+
+<div class="layui-card layadmin-header">
+  <div class="layui-breadcrumb" lay-filter="breadcrumb">
+    <a lay-href="">主页</a>
+  </div>
+</div>
+
+<div class="layui-fluid">   
+  <div class="layui-card">
+	  
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="layadmin-useradmin-formlist">
+      <div class="layui-form-item">
+		
+        <div class="layui-inline">
+          <div class="layui-input-block">
+            <select name="search-book-status" lay-filter="search-book-status" id="search-book-status">
+              <option value="0">书名</option>
+              <option value="1">作者</option>
+              <option value="2">出版社</option>
+            </select>
+          </div>
+        </div>
+				
+		<div class="layui-inline">
+		  <div class="layui-input-block">
+		    <input type="text" name="keyword" placeholder="请输入检索关键字" autocomplete="off" class="layui-input">
+		  </div>
+		</div>
+		
+        <div class="layui-inline">
+          <button class="layui-btn layuiadmin-btn-admin" lay-submit lay-filter="LAY-book-search">
+            <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+          </button>
+        </div>
+		
+      </div>
+	  
+	  <div class="layui-form-item">
+		  <div class="layui-inline">
+		    <div class="layui-input-block">
+		      <input type="text" readonly="readonly" value="小王子" name="hotbook0" autocomplete="off" class="layui-input">
+		    </div>
+		  </div>
+		  <div class="layui-inline">
+		    <div class="layui-input-block">
+		      <input type="text" readonly="readonly" value="平凡的世界" name="hotbook1"  autocomplete="off" class="layui-input">
+		    </div>
+		  </div>
+		  <div class="layui-inline">
+		    <div class="layui-input-block">
+		      <input type="text" readonly="readonly" value="白夜行" name="hotbook2"  autocomplete="off" class="layui-input">
+		    </div>
+		  </div>
+		  
+	  </div>
+	  
+    </div>
+    
+    <div class="layui-card-body">
+        <table id="LAY-search-book" lay-filter="LAY-search-book"></table>
+        <script type="text/html" id="borrow-book-script">
+			{{#  if(d.bookReturnDate != null ){ }}
+			  <a class="layui-btn layui-btn-disabled layui-btn-xs" ><i class="layui-icon layui-icon-cart-simple"></i>借书</a>
+			{{#  } else { }}
+			  <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="borrow-book"><i class="layui-icon layui-icon-cart-simple"></i>借书</a>
+			{{#  } }}
+            
+        </script>
+    </div>
+	
+  </div>
+</div>
+
+
+<script>
+
+layui.use('searchBook', layui.factory('searchBook')).use(['searchBook', 'admin', 'table'], function(){
+	var $ = layui.$
+	,admin = layui.admin
+	,table = layui.table
+	,form = layui.form;
+	
+	form.render();
+	
+	//监听搜索
+	form.on('submit(LAY-book-search)', function(data){
+	  var searchBookStatusValue = $("#search-book-status").val();
+	  var field = data.field;
+	  var keyword = field.keyword;
+	  
+	  if(keyword==null || keyword== ''){
+		  layer.alert("检索词不能为空");
+		  return;
+	  }
+	  
+	  //layer.msg(searchBookStatusValue +" ---" +keyword+"--- ");
+	  /*
+	  <option value="0">书名</option>
+	  <option value="1">作者</option>
+	  <option value="2">出版社</option>*/
+	  if (searchBookStatusValue==0){
+		  table.reload('LAY-search-book', {
+		      elem: "#LAY-search-book",
+		      url: "/findByBookName",
+		      method:"GET",
+			  async: false,
+			  dataType:"json",
+		      where:{
+		  	       "name":keyword
+		  		  }
+		      
+		  });
+		  
+	  } else if(searchBookStatusValue==1){
+		  table.reload('LAY-search-book', {
+		      elem: "#LAY-search-book",
+		      url: "/findByBookAuthor",
+		      method:"GET",
+			  dataType:"json",
+		      where:{
+		  	       "author":keyword
+		  		  }
+		      
+		  });
+	  } else{
+		  table.reload('LAY-search-book', {
+		      elem: "#LAY-search-book",
+		      url: "/findByBookPress",
+		      method:"GET",
+			  dataType:"json",
+		      where:{
+		  	       "keyword":keyword
+		  		  }
+		      
+		  });
+	  }
+	  
+	  $.ajax({
+	  	url:"/getHotBooks",
+	  	dataType: "json",
+	  	success:function(data){
+			$.each(data, function(index, item) {
+				$('input[name=hotbook'+index+']').val(item.bookName);
+			});
+			form.render(null,"layadmin-useradmin-formlist");
+	  	}
+	  });
+	    
+	});
+	
+	$.ajax({
+		url:"/getHotBooks",
+		dataType: "json",
+		success:function(data){
+			$.each(data, function(index, item) {
+				$('input[name=hotbook'+index+']').val(item.bookName);
+			});
+		}
+	});
+	
+});
+</script>
+

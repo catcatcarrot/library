@@ -1,0 +1,60 @@
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>图书陈列</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid" id="LAY-app-message">
+    <div class="layui-card">
+        <div class="layui-tab layui-tab-brief" lay-filter="app-content-task">
+            <ul class="layui-tab-title">
+                <li class="layui-this">计算机科学</li>
+                <li>文学</li>
+                <li>生活</li>
+                <li>政治</li>
+            </ul>
+            <div class="layui-tab-content">
+                <div class="layui-tab-item layui-show">
+                    <table id="computer" lay-filter="computer"></table>
+                </div>
+                <div class="layui-tab-item">
+                    <table id="literature" lay-filter="literature"></table>
+                </div>
+                <div class="layui-tab-item">
+                    <table id="life" lay-filter="life"></table>
+                </div>
+                <div class="layui-tab-item">
+                    <table id="political" lay-filter="political"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    layui.use('bookInfo', layui.factory('bookInfo')).use(['admin', 'bookInfo', 'table', 'util', 'element'], function() {
+        var $ = layui.$,
+            admin = layui.admin,
+            view = layui.view,
+            table = layui.table,
+            form = layui.form,
+            element = layui.element; //Tab的切换功能
+
+		//监听选项卡
+		element.on('tab', function(data){
+			if(data.index==0){
+				layui.table.reload('computer');
+			}else if(data.index==1){
+				layui.table.reload('literature');
+			}else if(data.index==2){
+				layui.table.reload('life');
+			}else if(data.index==3){
+				layui.table.reload('political');
+			}
+		});
+
+        form.render(null, 'app-content-task');
+
+    });
+</script>

@@ -1,0 +1,76 @@
+
+<title>我的信息</title>
+
+<div class="layui-card layadmin-header">
+  <div class="layui-breadcrumb" lay-filter="breadcrumb">
+    <a lay-href="">主页</a>
+    <a><cite>我的信息</cite></a>
+  </div>
+</div>
+  
+<div class="layui-fluid">
+  <div class="layui-row layui-col-space15">
+    <div class="layui-col-md12">
+      <div class="layui-card">
+        <div class="layui-card-header">查看我的信息</div>
+        <div class="layui-card-body" pad15>
+          
+          <div class="layui-form" lay-filter="">
+            <div class="layui-form-item">
+              <label class="layui-form-label">姓名</label>
+              <div class="layui-input-inline">
+                <input type="text" name="user_name"  autocomplete="off" placeholder="请输入姓名" class="layui-input">
+              </div>
+            </div>
+            <div class="layui-form-item">
+              <label class="layui-form-label">编号</label>
+              <div class="layui-input-inline">
+                <input type="text" name="user_number"  autocomplete="off" placeholder="请输入昵称" class="layui-input">
+              </div>
+            </div>
+			
+			<div class="layui-form-item">
+			  <label class="layui-form-label">图书借阅</label>
+		      <div class="layui-input-inline">
+				
+			  </div>
+			</div>
+			
+			<div class="layui-form-item">
+			  <table id="book-borrow" lay-filter="book-borrow"></table>
+			  <script type="text/html" id="book-return-script">
+			      <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="return-book"><i class="layui-icon layui-icon-delete"></i>还书</a>
+			  </script>
+			</div>
+            
+          </div>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+layui.use('userInfo', layui.factory('userInfo')).use(['userInfo', 'table'], function(){
+	var $ = layui.$
+	,table = layui.table
+	,form = layui.form;
+	
+	$.ajax({
+		url:"/getUser",
+		dataType: "json",
+		success:function(data){
+			if(data.code==0){
+				//layer.msg("查找用户信息成功");
+				$("input[name='user_name']").val(data.data.userName);
+				$("input[name='user_number']").val(data.data.userNumber);
+			}else{
+				layer.msg("查找用户信息失败");
+			}
+		}
+	});
+	
+	
+});
+</script>

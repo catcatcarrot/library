@@ -1,0 +1,123 @@
+<title>图书管理</title>
+
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>图书管理</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="layadmin-bookManage-formlist">
+            <div class="layui-form-item">
+
+                <div class="layui-inline">
+                    <div class="layui-input-inline">
+                        <button class="layui-btn layuiadmin-btn-admin" data-type="add">添加</button>
+                    </div>
+                </div>
+
+                <div class="layui-inline">
+                    <div class="layui-input-block">
+                        <input type="text" name="number" placeholder="输入图书编号" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <button class="layui-btn layuiadmin-btn-admin" lay-submit lay-filter="LAY-book-number-search">
+                         <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-card-body">
+
+            <table id="LAY-book-manage" lay-filter="LAY-book-manage"></table>
+
+            <script type="text/html" id="table-book-delete">
+                <a lay-event="del" style="color:#008B8B "><i class="layui-icon layui-icon-delete"></i>删除</a>
+            </script>
+        </div>
+    </div>
+</div>
+
+<script>
+    layui.use('bookManage', layui.factory('bookManage')).use(['admin', 'bookManage', 'table'], function() {
+        var $ = layui.$,
+            admin = layui.admin,
+            view = layui.view,
+            table = layui.table,
+            form = layui.form;
+
+        form.render(null, 'layadmin-bookManage-formlist');
+
+        //监听搜索
+        form.on('submit(LAY-book-number-search)', function(data) {
+            var field = data.field;//获得容器的全部表单数据
+			var number = field.number;
+
+            //执行重载
+            table.reload('LAY-book-manage', {
+                elem: "#LAY-book-manage",
+                url: "/findBookByNumber",
+                method:"GET",
+				where:{"bookNumber":number}
+            });
+        });
+
+        //事件
+        var active = {
+            add: function() {
+                admin.popup({
+                    title: '添加图书',
+                    area: ['420px', '450px'],
+                    id: 'LAY-popup-useradmin-add',
+                    success: function(layero, index) {
+                        view(this.id).render('book/add').done(function() {
+                            form.render(null, 'layuiadmin-form-admin');
+
+                            //监听提交
+                            form.on('submit(LAY-book-add-submit)', function(data) {
+                                var field = data.field; //获取提交的字段
+								
+								var bookName = field.name;
+								var bookAuthor = field.author;
+								var bookNumber = field.number;
+								var bookRegion = field.region;
+								var bookPress = field.press;
+								var bookSort = field.sort;
+								var data = {bookName,bookAuthor,bookNumber,bookRegion,bookPress,bookSort};
+								
+								$.ajax({
+									url:"/insertBook",
+									//传过去
+									data:data,
+									type:"POST",
+									//传回来
+									dataType: "json",
+									success:function(data){
+										//layer.alert(data.msg);
+										layer.msg("添加成功");
+										if(data.code==0){
+											layui.table.reload('LAY-book-manage');
+										}	
+									}
+								})
+
+                                //提交 Ajax 成功后，关闭当前弹层并重载表格
+                                //$.ajax({});
+                                //layui.table.reload('LAY-user-back-manage'); //重载表格
+                                layer.close(index); //执行关闭 
+                            });
+                        });
+                    }
+                });
+            }
+        }
+        $('.layui-btn.layuiadmin-btn-admin').on('click', function() {
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+    });
+</script>
